@@ -26,6 +26,8 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
+        active-environment: test-environment
+        channels: conda-forge
         python-version: ${{ matrix.python-version }}
     - name: Install portaudio Ubuntu
       if: matrix.os == 'ubuntu-latest'
@@ -35,9 +37,7 @@ jobs:
       run: brew install portaudio
     - name: Set up test environment
       run: |
-        conda config --append channels conda-forge
-        conda create -q -n test-environment python=${{ matrix.python-version }} ffmpeg coverage python-coveralls --file=requirements.txt --file=requirements_remote.txt --file=requirements_test.txt
-        conda activate test-environment
+        conda install ffmpeg coverage python-coveralls --file=requirements.txt --file=requirements_remote.txt --file=requirements_test.txt
     - name: Run Test
       run: |
         pytest --version
