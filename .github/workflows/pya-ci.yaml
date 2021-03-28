@@ -18,10 +18,6 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
         python-version: [3.5, 3.6, 3.7, 3.8]
-    defaults:
-      run:
-        shell: bash -l {0}
-
     steps:
     - uses: conda-incubator/setup-miniconda@v2
       with:
@@ -33,8 +29,6 @@ jobs:
     - name: Install portaudio MacOS
       if: matrix.os == 'macos-latest'
       run: brew install portaudio
-    - name: LS
-      run: ls
     - name: Set up test environment
       run: |
         conda config --append channels conda-forge
