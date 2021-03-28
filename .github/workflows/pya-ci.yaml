@@ -33,14 +33,16 @@ jobs:
     - name: Install portaudio MacOS
       if: matrix.os == 'macos-latest'
       run: brew install portaudio
+    - name: LS
+      run: ls
     - name: Set up test environment
       run: |
         conda config --append channels conda-forge
         conda create -q -n test-environment python=${{ matrix.python-version }} ffmpeg coverage python-coveralls --file=requirements.txt --file=requirements_remote.txt --file=requirements_test.txt
         conda activate test-environment
-        pytest --version
     - name: Run Test
-      run:
+      run: |
+        pytest --version
         pytest --cov pya/
     - name: Coverage
       run:
