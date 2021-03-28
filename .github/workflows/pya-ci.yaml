@@ -37,6 +37,7 @@ jobs:
       run: brew install portaudio
     - name: Set up test environment
       run: |
+        conda activate test-environment
         conda install ffmpeg coverage python-coveralls --file=requirements.txt --file=requirements_remote.txt --file=requirements_test.txt
     - name: Run Test
       run: |
