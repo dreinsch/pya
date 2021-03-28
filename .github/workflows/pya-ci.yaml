@@ -28,10 +28,10 @@ jobs:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
     - name: Install portaudio Ubuntu
-      if: ${{ matrix.os == "ubuntu-latest" }}
+      if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install portaudio19-dev
     - name: Install portaudio MacOS
-      if: ${{ matrix.os == "macos-latest" }}
+      if: matrix.os == 'macos-latest'
       run: brew install portaudio
     - name: Set up test environment
       run:
