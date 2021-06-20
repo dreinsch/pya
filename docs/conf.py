@@ -12,8 +12,6 @@
 #
 import os
 import sys
-from m2r import MdInclude 
-from recommonmark.transform import AutoStructify
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -33,7 +31,7 @@ html_context = dict(versions=str(version))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.napoleon',
-              'recommonmark',
+              'myst_parser',
               'autoapi.extension']
 
 source_suffix = ['.rst', '.md']
@@ -63,20 +61,3 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
-
-
-def setup(app):
-    config = {
-        # 'url_resolver': lambda url: github_doc_root + url,
-        'auto_toc_tree_section': 'Contents',
-        'enable_eval_rst': True,
-    }
-    app.add_config_value('recommonmark_config', config, True)
-    app.add_transform(AutoStructify)
-
-    # from m2r to make `mdinclude` work
-    app.add_config_value('no_underscore_emphasis', False, 'env')
-    app.add_config_value('m2r_parse_relative_links', False, 'env')
-    app.add_config_value('m2r_anonymous_references', False, 'env')
-    app.add_config_value('m2r_disable_inline_math', False, 'env')
-    app.add_directive('mdinclude', MdInclude)

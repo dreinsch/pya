@@ -1,12 +1,18 @@
 .. toctree::
+   :Caption: Introduction
    :maxdepth: 2
 
-.. mdinclude:: ../README.md
+   README
+
+.. toctree::
+   :Caption: API Reference
+   :maxdepth: 2
+
+   autoapi/pya/index
 
 Indices and tables
 ==================
 
-* :doc:`API Reference <autoapi/pya/index>` 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`

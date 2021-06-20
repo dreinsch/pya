@@ -8,11 +8,14 @@ import shutil
 from sys import platform
 from os.path import exists, dirname, basename
 
-SILENCE = "> /dev/null 2>&1"
-
-# this requires m2r, sphinx (<3.0 due to m2r) and sphinx_rtd_theme
+# this requires sphinx, sphinx_rtd_theme and myst-parser
 # you usually want to run:  
 #   python dev/generate_doc --doctree --publish --clean --no-show
+
+def copy_and_overwrite(from_path, to_path):
+    if os.path.exists(to_path):
+        shutil.rmtree(to_path)
+    shutil.copytree(from_path, to_path)
 
 def generate():
     git_root = subprocess.check_output(f'git -C {dirname(__file__)} rev-parse --show-toplevel'.split(' '))
@@ -77,18 +80,20 @@ def generate_tree(out_folder, publish=False, branches=['master', 'develop'], tag
     for d in doclist:
         print(f"Generating documentation for {d} ...")
         target = d if d in branches else 'tags/' + d
-        res = os.system(f'git -C {doctree_root} checkout {target} -f' + SILENCE)
+        res = os.system(f'git -C {doctree_root} checkout {target} -f --quiet')
         if res != 0:
             raise RuntimeError(f'Could not checkout {d}. Git returned status code {res}!')
         if template_folder:
-            os.system(f'cp {template_folder}/* {doctree_root}/docs/_templates')
+            copy_and_overwrite(template_folder, f'{doctree_root}/docs/_templates')
 
         # override index and config for versions older than 0.5.0
         if d[0] == 'v' and d[1] == '0' and int(d[3]) < 5:
-            os.system(f'cp {template_folder}/../conf.py {template_folder}/../index.rst {doctree_root}/docs')
+            shutil.copyfile(f'{template_folder}/../conf.py', f'{doctree_root}/docs/conf.py')
+            shutil.copyfile(f'{template_folder}/../index.rst', f'{doctree_root}/docs/index.rst')
 
         # PYTHONDONTWRITEBYTECODE=1 prevents __pycache__ files which we don't need when code runs only once.
-        res = os.system(f'PYTHONDONTWRITEBYTECODE=1 sphinx-build -b html -D version={d} -A versions={",".join(doclist)} {doctree_root}/docs {build_folder}/{d}' + SILENCE)
+        os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+        res = os.system(f'sphinx-build -q -b html -D version={d} -A versions={",".join(doclist)} {doctree_root}/docs {build_folder}/{d}')
         if res != 0:
             raise RuntimeError(f'Could not generate documentation for {d}. Sphinx returned status code {res}!')
 
@@ -105,8 +110,8 @@ def generate_tree(out_folder, publish=False, branches=['master', 'develop'], tag
 
     # prepare gh-pages
     print("Merging documentation...")
-    os.system(f'git -C {doctree_root} checkout gh-pages -f' + SILENCE)
-    os.system(f'cp -r {build_folder}/* {doctree_root}')
+    os.system(f'git -C {doctree_root} checkout gh-pages -f --quiet')
+    copy_and_overwrite(build_folder, doctree_root)
     print("Current differences in 'gh-branch':")
     os.system(f'git -C {doctree_root} status')
     print(f"Documentation tree has been written to {doctree_root}")
@@ -121,7 +126,7 @@ def generate_tree(out_folder, publish=False, branches=['master', 'develop'], tag
         _run_webserver(doctree_root)
 
 def _has_docs(name, doctree_root):
-    os.system(f'git -C {doctree_root} checkout {name}' + SILENCE)
+    os.system(f'git -C {doctree_root} checkout {name} --quiet')
     return exists(f'{doctree_root}/docs')
 
 def _run_webserver(root):
