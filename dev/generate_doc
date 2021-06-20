@@ -59,7 +59,8 @@ def generate_tree(out_folder, publish=False, branches=['master', 'develop'], tag
     build_folder = f"{out_folder}/tmp"
     os.makedirs(build_folder, exist_ok=True)
     if not exists(doctree_root):
-        os.system(f'git clone https://github.com/interactive-sonification/pya.git {doctree_root}')
+        clone_url = subprocess.check_output(f'git config --get remote.origin.url'.split(' '))
+        os.system(f'git clone {clone_url} {doctree_root}')
     else:
         # os.system(f'git -C {doctree_root} fetch --all')
         os.system(f'git -C {doctree_root} pull --all')
